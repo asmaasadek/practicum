@@ -24,6 +24,15 @@ public class UserTransaction {
     @Column(name = "to_user", nullable = false)
     private Integer toUser;
 
+    @Column(name = "transaction_amount", nullable = false)
+    private Double transactionAmount;
+
     @Column(name = "transaction_date", nullable = false, insertable = false, updatable = false)
     private Timestamp transactionDate;
+
+    public UserTransaction registerTransaction(Integer fromUser, Integer toUser) {
+        this.setFromUser(fromUser);
+        this.setToUser(toUser);
+        return this;
+    }
 }

@@ -3,12 +3,12 @@ package com.big.assessment.utilities;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Result<T extends Object> {
-    T entity;
-    int code;
+public class ErrorResult {
+    HttpStatus httpStatus;
     String message;
 }

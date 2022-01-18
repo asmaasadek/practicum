@@ -9,7 +9,6 @@ import com.big.assessment.models.UserDTO;
 import com.big.assessment.models.UserTransactionDTO;
 import com.big.assessment.repositories.UserRepository;
 import com.big.assessment.repositories.UserTransactionRepository;
-import com.big.assessment.utilities.Result;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,25 +30,18 @@ public class UserService implements IUserService {
 
 
     @Override
-    public Result addUser(UserDTO userDTO) {
-        Result result = new Result();
-        try {
-            validateAddingUser(userDTO);
+    public User addUser(UserDTO userDTO) {
+        log.info("Add new User...");
+        if (userRepository.findByUserMail(userDTO.getUserMail()) != null)
+            throw new UserBadRequestException(HttpStatus.FOUND,
+                    "UserMail should be unique");
 
-            result.setEntity(userRepository.save(new User().fromUserDTO(userDTO)).getId());
-            result.setCode(HttpStatus.OK.value());
-            result.setMessage("User Added Successfully!");
-
-        } catch (UserBadRequestException ex) {
-            ex.printStackTrace();
-            result.setCode(ex.getErrorCode().value());
-            result.setMessage(ex.getMessage());
-        }
-        return result;
+        return userRepository.save(new User().fromUserDTO(userDTO));
     }
 
     @Override
-    public void sendAmount(Integer userId, AmountDTO amountDTO) {
+    public UserTransaction sendAmount(Integer userId, AmountDTO amountDTO) {
+        log.info("Sending VC from user: " + userId + " to user: " + amountDTO.getToUserId());
         Optional<User> fromUser =
                 userRepository.findById(userId);
         if (!fromUser.isPresent())
@@ -58,19 +50,25 @@ public class UserService implements IUserService {
 
         User sender = fromUser.get();
         if (sender.getVirtualCurrency() < amountDTO.getAmount())
-            throw new UserBadRequestException(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE,
-                    "This amount is greater than your limit!: " + userId);
+            throw new UserBadRequestException(HttpStatus.EXPECTATION_FAILED,
+                    "This amount is greater than your limit!: ");
 
+        //Update Sender VC
         sender.setVirtualCurrency(sender.getVirtualCurrency() - amountDTO.getAmount());
         userRepository.save(sender);
 
+        //Update Receiver VC
         userRepository.updateUserVC(amountDTO.getToUserId(), amountDTO.getAmount());
 
-        saveTransaction(sender.getId(), amountDTO.getToUserId());
+        //Save Transaction
+        return userTransactionRepository.save(new UserTransaction().registerTransaction(sender.getId(),
+                amountDTO.getToUserId(),
+                amountDTO.getAmount()));
     }
 
     @Override
     public List<UserTransactionDTO> listUserTransactions(Integer userId) {
+        log.info("Listing transactions for userId: " + userId);
         Optional<User> fromUser =
                 userRepository.findById(userId);
         if (!fromUser.isPresent())
@@ -80,6 +78,10 @@ public class UserService implements IUserService {
         List<UserTransaction> userTransactions =
                 userTransactionRepository.findAllByFromUserOrToUser(userId, userId);
 
+        if (userTransactions != null && userTransactions.size() < 1)
+            throw new UserBadRequestException(HttpStatus.NOT_FOUND,
+                    "Not active UserId: " + userId + ", There are no transactions for this user!");
+
         List<UserTransactionDTO> result = new ArrayList<>();
         for (UserTransaction transaction :
                 userTransactions) {
@@ -88,19 +90,4 @@ public class UserService implements IUserService {
         return result;
     }
 
-    private void validateAddingUser(UserDTO userDTO) {
-        if (userRepository.findByUserMail(userDTO.getUserMail()) != null) {
-            throw new UserBadRequestException(HttpStatus.FOUND,
-                    "UserMail should be unique");
-        }
-    }
-
-    private void saveTransaction(Integer fromUserId, Integer toUserId) {
-        try {
-            userTransactionRepository.save(new UserTransaction()
-                    .registerTransaction(fromUserId, toUserId));
-        } catch (Exception ex) {
-
-        }
-    }
 }

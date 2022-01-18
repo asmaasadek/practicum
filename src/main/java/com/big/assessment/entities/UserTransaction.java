@@ -1,10 +1,14 @@
 package com.big.assessment.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
+
 
 @Entity
 @Table(name = "users_transactions")
@@ -28,11 +32,15 @@ public class UserTransaction {
     private Double transactionAmount;
 
     @Column(name = "transaction_date", nullable = false, insertable = false, updatable = false)
-    private Timestamp transactionDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Generated(value = GenerationTime.INSERT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
+    private Date transactionDate;
 
-    public UserTransaction registerTransaction(Integer fromUser, Integer toUser) {
+    public UserTransaction registerTransaction(Integer fromUser, Integer toUser, Double amount) {
         this.setFromUser(fromUser);
         this.setToUser(toUser);
+        this.setTransactionAmount(amount);
         return this;
     }
 }

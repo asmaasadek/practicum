@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("UPDATE User u SET u.virtualCurrency = (u.virtualCurrency + :value)")
     @Transactional
     @Modifying
-    void incrementUserVC(double value);
+    void incrementAllUsersVC(double value);
 
     @Query("UPDATE User u SET u.virtualCurrency = (u.virtualCurrency + :amount) where id= :userId")
     @Transactional

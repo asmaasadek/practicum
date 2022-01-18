@@ -20,7 +20,7 @@ public class VCAccrualTask {
     @Scheduled(fixedRateString = "${schedule.task.rate}")
     public void start() {
         log.info("Starting VC Incremental for all users with: " + accrueValue);
-        userRepository.incrementUserVC(accrueValue);
+        userRepository.incrementAllUsersVC(accrueValue);
     }
 }
 

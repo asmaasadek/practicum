@@ -18,8 +18,8 @@ public class UserTransaction {
 
     @Id
     @Column(name = "id", insertable = false, nullable = false, updatable = false)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq-gen")
-    @SequenceGenerator(name = "seq-gen", sequenceName = "transaction_seq", initialValue = 1, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transaction-seq-gen")
+    @SequenceGenerator(name = "transaction-seq-gen", sequenceName = "transaction_seq", initialValue = 1, allocationSize = 1)
     private Integer id;
 
     @Column(name = "from_user", nullable = false)

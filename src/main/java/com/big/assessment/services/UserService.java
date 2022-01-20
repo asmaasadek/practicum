@@ -28,7 +28,12 @@ public class UserService implements IUserService {
     @Autowired
     UserTransactionRepository userTransactionRepository;
 
-
+    /**
+     * This method used for adding new users for VC transactions processes
+     *
+     * @param userDTO
+     * @return new user added to the system
+     */
     @Override
     public User addUser(UserDTO userDTO) {
         log.info("Add new User...");
@@ -39,6 +44,13 @@ public class UserService implements IUserService {
         return userRepository.save(new User().fromUserDTO(userDTO));
     }
 
+    /**
+     * This method used to send any provided and valid amount of VC from one user to another
+     *
+     * @param userId
+     * @param amountDTO
+     * @return
+     */
     @Override
     public UserTransaction sendAmount(Integer userId, AmountDTO amountDTO) {
         log.info("Sending VC from user: " + userId + " to user: " + amountDTO.getToUserId());
@@ -66,6 +78,12 @@ public class UserService implements IUserService {
                 amountDTO.getAmount()));
     }
 
+    /**
+     * This method used to list all the transactions of the user with their dates
+     *
+     * @param userId
+     * @return
+     */
     @Override
     public List<UserTransactionDTO> listUserTransactions(Integer userId) {
         log.info("Listing transactions for userId: " + userId);

@@ -1,3 +1,6 @@
+--CREATE DB
+CREATE DATABASE big_assessment;
+
 -- CREATE SEQUENCES
 CREATE SEQUENCE user_seq;
 CREATE SEQUENCE transaction_seq;

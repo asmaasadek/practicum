@@ -1,0 +1,7 @@
+1- Make sure to have postgres server on your machine or a docker container providing the db server
+2- Change provided configuration for postgres (username/password) in application properties
+3- Use sql file under resources folder for creating needed db tables
+4- After making sure that the application is running on your machine, Use the provided swagger link for testing apis
+
+#Swagger Link
+http://localhost:8008/api/big/swagger
